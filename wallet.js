@@ -16,31 +16,30 @@ class Transaccion extends Fecha {
 }
 
 let nombreCompleto;
-while (true) {
-  nombreCompleto = prompt("Ingresa tu nombre");
-  if (nombreCompleto.length >= 1) {
-    break;
+while (!nombreCompleto || nombreCompleto.length < 5) {
+  nombreCompleto = prompt("Ingresa tu nombre");  
+  if(nombreCompleto.length < 5){
+    alert("Ingresa tu nombre completo ")
   }
-  alert("Ingresa tu nombre completo ")
 }
-console.log("Bienvenido: " + nombreCompleto)
+console.log(`Bienvenido: ${nombreCompleto}`)
 
 let saldoInicial;
-while (true) {
+while (!saldoInicial || isNaN(saldoInicial) || saldoInicial < 1) {
   saldoInicialFecha = new Fecha
   saldoInicialRef = "Saldo inicial";
   saldoInicial = parseFloat(prompt("Ingresa tu saldo inicial"));
-  if (!isNaN(saldoInicial) && saldoInicial >= 1) {
-    break;
+  if (!saldoInicial) {
+    alert("Ingresa una cantidad válida, por ejemplo: 1000");
+  } else if(isNaN(saldoInicial) && saldoInicial > 1){
+    saldoInicial;
   }
-  alert("Ingresa una cantidad válida, por ejemplo: 1000");
 }
-
 saldo = new Transaccion(saldoInicialFecha, saldoInicialRef, saldoInicial);
 wallet.push(saldo);
 alert(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
 console.log(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`)
-console.log(wallet)
+console.table(wallet);
 
 function calcularTotal() {
   let saldo = 0;
@@ -51,9 +50,16 @@ function calcularTotal() {
 }
 
 function registrarTransaccion(monto) {
-  saldo = calcularTotal(saldo);
   movimientoFecha = new Fecha;
   movimientoReferencia = (prompt("Ingresa la referencia del movimiento"));
+  while(!movimientoReferencia){
+    movimientoReferencia = (prompt("Ingresa la referencia del movimiento"));
+    if(!movimientoReferencia){
+      alert("Ingresa una referencia, ejemplo: Ahorro semanal o Gasto en el super")
+    } else if(movimientoReferencia.length < 5){
+      movimientoReferencia = movimientoReferencia
+    }
+  }
   movimientos = new Transaccion(movimientoFecha, movimientoReferencia, monto);
   wallet.push(movimientos);
   saldo += monto;
@@ -62,14 +68,14 @@ function registrarTransaccion(monto) {
   alert(`Tu saldo actual es de: $${saldo.toFixed(2)} MXN`);
   console.log("Tu movimiento fue acreditado con exito!")
   console.log(`Tu saldo actual es de: $${saldo.toFixed(2)} MXN`)
-  console.log(wallet)
+  console.table(wallet)
 }
 
 function ingresarSaldo() {
   let ingresos;
   while (true) {
     ingresos = parseFloat(prompt("Ingresa el monto de ingresos"));
-    if (!isNaN(ingresos) && ingresos >= 0) {
+    if (!isNaN(ingresos) && ingresos > 0) {
       break;
     }
     alert("Ingresa una cantidad válida.");
@@ -83,7 +89,7 @@ function restarSaldo() {
   saldo = calcularTotal(saldo);
   while (true) {
     egresos = parseFloat(prompt("Ingresa el monto de egresos"));
-    if (!isNaN(egresos) && egresos >= 0 && egresos <= saldo) {
+    if (!isNaN(egresos) && egresos > 0 && egresos <= saldo) {
       break;
     }
     alert(`Ingresa una cantidad válida, recuerda que tu saldo es de: $${saldo.toFixed(2)}MXN`);
