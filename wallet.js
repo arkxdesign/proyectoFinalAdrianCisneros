@@ -1,4 +1,4 @@
-// Definición de la clase Fecha, que representa la fecha actual
+//  Definición de la clase Fecha, que representa la fecha actual
 class Fecha {
   constructor() {
     this.fecha = new Date().toLocaleString();
@@ -172,7 +172,6 @@ function verificarSaldoInicial() {
           // Se almacena 'wallet' en el localStorage con la clave "wallet"
           localStorage.setItem("wallet", JSON.stringify(wallet));
           swal(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
-          console.table(wallet);
           setTimeout(() => {
             location.reload()
           }, 2500);
@@ -182,6 +181,7 @@ function verificarSaldoInicial() {
   }
 }
 
+// Función de bienvenida y mostrar saldo
 function bienvenidoSaldo() {
   const bienvenidoEsteEsTuSaldo = document.createElement("div");
     bienvenidoEsteEsTuSaldo.innerHTML= `<h5>Tu saldo es de:</h5>
@@ -216,7 +216,6 @@ function registrarTransaccion(monto) {
   localStorage.setItem("wallet", JSON.stringify(wallet));
   saldo += monto;
   
-  console.table(wallet);
   swal("Tu movimiento fue aplicado por $" + monto.toFixed(2) + " MXN");
 
   calcularTotal();
@@ -274,6 +273,7 @@ function restarSaldo() {
   });
 }
 
+// Función para buscar por referencia
 function buscarReferencia() {
   let referenciaBusca = document.getElementById("buscarForm");
   referenciaBusca.addEventListener("submit", function (event) {
