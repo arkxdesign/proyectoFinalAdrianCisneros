@@ -1,0 +1,64 @@
+.btn{
+    text-decoration: none;
+    color: crimson;
+    background-color: white;
+}
+
+.btn:hover{
+    text-decoration: none;
+    color: white;
+    background-color: crimson;
+}
+
+.btn:active{
+    text-decoration: none;
+    color: gray;
+}
+
+.btn a{
+    text-decoration: none;
+    color: crimson;
+}
+
+.btn a:hover{
+    text-decoration: none;
+    color: white;
+}
+
+.btn a:active{
+    text-decoration: none;
+    color: gray;
+}
+
+.swal-button{
+    text-decoration: none;
+    color: white;
+    background-color: crimson;;
+
+}
+
+.swal-button:hover{
+    text-decoration: none;
+    color: white;
+    background-color: rgb(48, 47, 47) !important;
+}
+
+.swal-button:active{
+    text-decoration: none;
+    background-color: gray;
+}
+
+.swal-button a{
+    text-decoration: none;
+    color: crimson;
+}
+
+.swal-button a:hover{
+    text-decoration: none;
+    color: white;
+}
+
+.swal-button a:active{
+    text-decoration: none;
+    color: gray;
+}

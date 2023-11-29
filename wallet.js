@@ -1,71 +1,195 @@
+// Definición de la clase Fecha, que representa la fecha actual
 class Fecha {
   constructor() {
     this.fecha = new Date().toLocaleString();
   }
 }
 
+// Definición de la clase Transaccion que hereda de Fecha
 class Transaccion extends Fecha {
   constructor(fecha, referencia, movimiento) {
-    super(fecha)
-    this.referencia = referencia
-    this.movimiento = movimiento
+    super(fecha); // Llama al constructor de la clase padre (Fecha)
+    this.referencia = referencia; // Referencia de la transacción
+    this.movimiento = movimiento; // Monto de la transacción
   }
 }
 
-let walletLocalStorage = localStorage.getItem("wallet")
-let walletMovimientos = JSON.parse(walletLocalStorage)
-if (walletMovimientos){
+// Se obtiene el contenido almacenado en el localStorage con la clave "wallet"
+let walletLocalStorage = localStorage.getItem("wallet");
+// Se parsea el contenido a JSON para obtener un array de movimientos
+let walletMovimientos = JSON.parse(walletLocalStorage);
+
+// Se inicializan las variables 'saldo' y 'wallet'
+let saldo, wallet;
+
+// Si hay movimientos almacenados, se cargan en el programa
+if (walletMovimientos) {
+  // Se recorren los movimientos para obtener el último saldo
   walletMovimientos.forEach(movimiento => {
     saldo = parseFloat(movimiento.movimiento);
-    wallet = walletMovimientos
+    wallet = walletMovimientos;
   });
-    saldo = calcularTotal(saldo);
+  // Se recalcula el saldo total
+  saldo = calcularTotal(saldo);
 } else {
-    saldo = 0;
-    wallet = [];
+  // Si no hay movimientos almacenados, se inicializa el saldo en cero y 'wallet' como un array vacío
+  saldo = 0;
+  wallet = [];
 }
 
-let nombreCompleto;
-let nombreCompletoLocalStorage = localStorage.getItem("nombre")
-if(nombreCompletoLocalStorage){
-  console.log(`Bienvenido de nuevo: ${nombreCompletoLocalStorage}`)    
-} else {
-  while (!nombreCompleto || nombreCompleto.length < 5) {
-      nombreCompleto = prompt("Ingresa tu nombre");  
-      if(nombreCompleto.length < 5){
-        alert("Ingresa tu nombre completo ")
-      } 
-    localStorage.setItem("nombre", JSON.stringify(nombreCompleto))
-  }
-  console.log(`Bienvenido: ${nombreCompleto}`)
-}
+// Se obtiene el nombre almacenado en el localStorage con la clave "nombre"
+let nombreCompletoLocalStorageExtraer = localStorage.getItem("nombre");
+let nombreCompletoLocalStorage = JSON.parse(nombreCompletoLocalStorageExtraer)
+let bienvenidoUsuario = document.getElementById("bienvenidoUsuario")
+// Si el nombre está almacenado, se muestra un mensaje de bienvenida
+if (nombreCompletoLocalStorage) {
+  const bienvenidoDeNuevo = document.createElement("div")
+  bienvenidoDeNuevo.innerHTML= `<h5>Bienvenido de nuevo:</h5>
+                   <h3>${nombreCompletoLocalStorage}</h3>`
+  bienvenidoUsuario.appendChild(bienvenidoDeNuevo)
+  
+  let bienvenidoUsuarioSaldo = document.getElementById("bienvenidoUsuario");
+  const tituloSaldoInicial = document.createElement("div");
+  tituloSaldoInicial.innerHTML = `<h5>Tu saldo es de:</h5>
+                                  <h3>$ ${saldo.toFixed(2)} MXN</h3>
+                                  <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups" style="justify-content: center">
+                                    <div class="btn-group me-2" role="group" aria-label="First group">
+                                      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#movimientosModal" onclick="{ingresarSaldo()}">INGRESOS</button>
+                                      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#movimientosModal" onclick="{restarSaldo()}">EGRESOS</button>
+                                      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#buscarModal" onclick="{buscarReferencia()}">BUSCAR</button>
+                                      <button type="button" class="btn btn-outline-secondary"><a href="logout.html">SALIR</a></button>
+                                    </div>
+                                  </div>`;
+  bienvenidoUsuarioSaldo.appendChild(tituloSaldoInicial);
 
-let saldoInicial;
-let saldoInicialLocalStorage = localStorage.getItem("wallet");
-if(saldoInicialLocalStorage){
-  alert(`Bienvenido! ${nombreCompletoLocalStorage}, Tu saldo es de ${saldo.toFixed(2)} MXN`);
-  console.log(`Tu saldo es de ${saldo.toFixed(2)} MXN`); 
-  menu();
-}else{
-  while (!saldoInicial || isNaN(saldoInicial) || saldoInicial < 1) {
-    saldoInicialFecha = new Fecha
-    saldoInicialRef = "SALDO INICIAL";
-    saldoInicial = parseFloat(prompt("Ingresa tu saldo inicial"));
-    if (!saldoInicial) {
-      alert("Ingresa una cantidad válida, por ejemplo: 1000");
-    } else if(isNaN(saldoInicial) && saldoInicial > 1){
-      saldoInicial;
+  let movimientosWallet = document.getElementById("wallet");
+  
+  const tablaMovimientos = document.createElement("table");
+  tablaMovimientos.classList.add("table");
+  
+  const thead = document.createElement("thead");
+  const trHead = document.createElement("tr");
+  
+  const thFecha = document.createElement("th");
+  thFecha.scope = "col";
+  thFecha.textContent = "Fecha";
+  trHead.appendChild(thFecha);
+  
+  const thReferencia = document.createElement("th");
+  thReferencia.scope = "col";
+  thReferencia.textContent = "Referencia";
+  trHead.appendChild(thReferencia);
+  
+  const thMovimiento = document.createElement("th");
+  thMovimiento.scope = "col";
+  thMovimiento.textContent = "Movimiento";
+  trHead.appendChild(thMovimiento);
+  
+  thead.appendChild(trHead);
+  tablaMovimientos.appendChild(thead);
+  
+  const tbody = document.createElement("tbody");
+  
+  // Iterar sobre cada elemento en el array
+  wallet.forEach((movimiento) => {
+    const tr = document.createElement("tr");
+  
+    const tdFecha = document.createElement("td");
+    tdFecha.textContent = movimiento.fecha;
+    tr.appendChild(tdFecha);
+  
+    const tdReferencia = document.createElement("td");
+    tdReferencia.textContent = movimiento.referencia;
+    tr.appendChild(tdReferencia);
+  
+    const tdMovimiento = document.createElement("td");
+    tdMovimiento.innerHTML = `$ ${movimiento.movimiento.toFixed(2)} MXN`;
+    tr.appendChild(tdMovimiento);
+  
+    tbody.appendChild(tr);
+  });
+  
+  tablaMovimientos.appendChild(tbody);
+  movimientosWallet.appendChild(tablaMovimientos);
+  
+} else {
+  const tituloNombre = document.createElement("div");
+  const inputNombre = document.createElement("input");
+  inputNombre.classList.add("form-control");
+  tituloNombre.innerHTML = `<h5>Ingresa tu nombre completo</h5>`;
+  bienvenidoUsuario.appendChild(tituloNombre);
+  bienvenidoUsuario.appendChild(inputNombre);
+
+  inputNombre.addEventListener("keydown", function(event){
+    if (event.key === "Enter") {
+      const nombreCompleto = inputNombre.value.trim();
+      if (nombreCompleto.length >= 5) {
+        // Se almacena el nombre en el localStorage con la clave "nombre"
+        localStorage.setItem("nombre", JSON.stringify(nombreCompleto)); 
+        const registroUsuarioBienvenida = document.createElement("div");
+        registroUsuarioBienvenida.innerHTML = `<h5>Bienvenido:</h5>
+                          <h3>${nombreCompleto}</h3>`;
+        bienvenidoUsuario.innerHTML = "";
+        bienvenidoUsuario.appendChild(registroUsuarioBienvenida);
+        verificarSaldoInicial()        
+      } else {
+        swal("Ingresa un nombre completo válido (mínimo 5 caracteres).");
+      }
     }
-  }
-  saldo = new Transaccion(saldoInicialFecha, saldoInicialRef, saldoInicial);
-  wallet.push(saldo);
-  localStorage.setItem("wallet", JSON.stringify(wallet))
-  alert(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
-  console.log(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`)
-  console.table(wallet);
-  menu();
+  })
 }
 
+function verificarSaldoInicial() {
+  // Se obtiene el saldo inicial almacenado en el localStorage con la clave "wallet"
+  let saldoInicialLocalStorage = localStorage.getItem("wallet");
+  let bienvenidoUsuarioSaldo = document.getElementById("bienvenidoUsuario");
+  let inputSaldoInicial = document.getElementById("inputSaldoInicial")
+  
+  if (saldoInicialLocalStorage) {
+    bienvenidoSaldo()
+  } else {
+    const tituloSaldoInicial = document.createElement("div");
+    tituloSaldoInicial.innerHTML = `
+    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    INGRESA TU SALDO INICIAL
+    </button>
+    `;
+    bienvenidoUsuarioSaldo.appendChild(tituloSaldoInicial);
+    // bienvenidoUsuarioSaldo.appendChild(inputSaldoInicial);    
+    inputSaldoInicial.addEventListener("keydown", function(event){
+      if (event.key === "Enter") {
+        const inputSI = inputSaldoInicial.value.trim();
+        const saldoInicial = parseFloat(inputSI);
+        if (isNaN(saldoInicial)|| saldoInicial <= 0) {
+          swal("Ingresa una cantidad válida, por ejemplo: 1000");
+        } else if (saldoInicial >= 1) {
+          saldoInicialFecha = new Fecha();
+          saldoInicialRef = "SALDO INICIAL";
+          saldoInicial;
+          // Se crea una nueva transacción con el saldo inicial y se agrega al array 'wallet'
+          saldo = new Transaccion(saldoInicialFecha, saldoInicialRef, saldoInicial);
+          wallet.push(saldo);
+          // Se almacena 'wallet' en el localStorage con la clave "wallet"
+          localStorage.setItem("wallet", JSON.stringify(wallet));
+          swal(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
+          console.table(wallet);
+          setTimeout(() => {
+            location.reload()
+          }, 2500);
+        }
+      }
+    })
+  }
+}
+
+function bienvenidoSaldo() {
+  const bienvenidoEsteEsTuSaldo = document.createElement("div");
+    bienvenidoEsteEsTuSaldo.innerHTML= `<h5>Tu saldo es de:</h5>
+                                        <h3>${saldo.toFixed(2)} MXN</h3>`
+    bienvenidoUsuarioSaldo.appendChild(bienvenidoEsteEsTuSaldo);
+}
+
+// Función para calcular el saldo total sumando todos los movimientos
 function calcularTotal() {
   if (walletMovimientos) {
     let saldo = 0;
@@ -78,105 +202,98 @@ function calcularTotal() {
     for (let movimientos of wallet) {
       saldo += movimientos.movimiento;
     }
-    return saldo
+    return saldo;
   }
 }
 
+// Función para registrar una nueva transacción y actualizar el saldo
 function registrarTransaccion(monto) {
-  movimientoFecha = new Fecha;
-  movimientoReferencia = (prompt("Ingresa la referencia del movimiento"));
-  while(!movimientoReferencia){
-    movimientoReferencia = (prompt("Ingresa la referencia del movimiento"));
-    if(!movimientoReferencia){
-      alert("Ingresa una referencia, ejemplo: Ahorro semanal o Gasto en el super")
-    } else if(movimientoReferencia.length < 5){
-      movimientoReferencia = movimientoReferencia
-    }
-  }
+  let referenciaInput = document.getElementById("inputReferencia");
+  movimientoFecha = new Fecha();
+  movimientoReferencia = referenciaInput.value.trim()
   movimientos = new Transaccion(movimientoFecha, movimientoReferencia, monto);
   wallet.push(movimientos);
-  localStorage.setItem("wallet", JSON.stringify(wallet))
+  localStorage.setItem("wallet", JSON.stringify(wallet));
   saldo += monto;
   
+  console.table(wallet);
+  swal("Tu movimiento fue aplicado por $" + monto.toFixed(2) + " MXN");
+
   calcularTotal();
-  
-  alert(`Tu saldo actual es de: $${saldo.toFixed(2)} MXN`);
-  console.log("Tu movimiento fue acreditado con exito!")
-  console.log(`Tu saldo actual es de: $${saldo.toFixed(2)} MXN`)
-  console.table(wallet)
+
+  setTimeout(() => {
+    location.reload()
+  },3000)
 }
 
+// Función para ingresar un monto como ingreso
 function ingresarSaldo() {
-  let ingresos;
+  let ingresosModal = document.getElementById("movimientosForm");
+  ingresosModal.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-  ingresos = parseFloat(prompt("Ingresa el monto de ingresos"));
-  if (!isNaN(ingresos) && ingresos > 0) {
-    registrarTransaccion(ingresos);
-    console.log(`Tu deposito es de $ ${ingresos.toFixed(2)} MXN`)
-  } else {
-    alert("Ingresa una cantidad válida.");
-  }
+    let ingresosInput = document.getElementById("inputMovimiento");
+    let referenciaInput = document.getElementById("inputReferencia");
+
+    const inputIngreso = ingresosInput.value.trim();
+    const ingresos = parseFloat(inputIngreso);
+    const movimientoReferencia = referenciaInput.value.trim();
+    
+    if (!isNaN(ingresos) && ingresos > 0 && movimientoReferencia.length >= 1) {
+      registrarTransaccion(ingresos);
+      ingresosInput.value = "";
+      referenciaInput.value = "";
+    } else {
+      swal("Ingresa una cantidad válida mayor a 0 y una referencia con al menos 1 caracter.");
+    }
+  });
 }
 
+// Función para ingresar un monto como egreso
 function restarSaldo() {
-  let egresos;
-  saldo = calcularTotal(saldo);
+    let egresosModal = document.getElementById("movimientosForm");
+    egresosModal.addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    let movimientosInput = document.getElementById("inputMovimiento");
+    let referenciaInput = document.getElementById("inputReferencia");
+    
+    const inputIngreso = movimientosInput.value.trim();
+    const egresos = parseFloat(inputIngreso);
+    const movimientoReferencia = referenciaInput.value.trim();
 
-  egresos = parseFloat(prompt("Ingresa el monto de egresos"));
-  if (!isNaN(egresos) && egresos > 0 && egresos <= saldo && saldo > 0) {
-    registrarTransaccion(-egresos);
-    console.log(saldo)
-    console.log("Tu retiro es de $" + egresos.toFixed(2) + " MXN")
-  } else {
-    alert(`Ingresa una cantidad válida, recuerda que tu saldo es de: $${saldo.toFixed(2)}MXN`);
-  } 
+    saldo = calcularTotal(saldo);
+    
+    if (!isNaN(egresos) && egresos > 0 && egresos <= saldo && saldo > 0 && movimientoReferencia.length >= 1) {
+      registrarTransaccion(-egresos);
+      movimientosInput.value = "";
+      referenciaInput.value = "";
+    } else {
+      swal(`Ingresa una cantidad válida, recuerda que tu saldo es de: $${saldo.toFixed(2)} MXN`);
+    }
+  });
 }
 
 function buscarReferencia() {
-  const referenciaBuscada = prompt("Buscar por referencia");
-  const referenciaEncontrada = wallet.find(transaccion => transaccion.referencia.toLowerCase().includes(referenciaBuscada.toLowerCase()));
+  let referenciaBusca = document.getElementById("buscarForm");
+  referenciaBusca.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-  if (referenciaEncontrada) {
-    console.log("Transacción encontrada:");
-    console.table(referenciaEncontrada)
-  } else {
-    console.log("No se encontró ninguna transacción con esa referencia.");
-  }
-}
+    let referenciaInput = document.getElementById("inputReferenciaBuscar");
+    let referenciaBuscada = referenciaInput.value.trim();
+    
+    const transaccionesEncontradas = wallet.filter(
+      transaccion => transaccion.referencia.toLowerCase().includes(referenciaBuscada.toLowerCase())
+    );
 
-function menu() {
-  let nombre = nombreCompletoLocalStorage ? nombreCompletoLocalStorage : nombreCompleto;
-  let ingresarMovimientos = true
-  saldo = calcularTotal(saldo);
-  while (ingresarMovimientos) {
-  let walletMovimientos = prompt(
-    "Selecciona una opción:\n" +
-    "0 - INGRESOS\n" +
-    "1 - EGRESOS\n" +
-    "2 - SALIR\n" +
-    "B - Buscar por referencia"
-  );
-    switch (walletMovimientos) {
-      case "0":
-        ingresarSaldo()
-        break;
-        case "1":
-        restarSaldo()
-        break;
-      case "2":
-        ingresarMovimientos = false;
-        alert(`Gracias ${nombre}! Tu saldo final es de $ ${saldo.toFixed(2)} MXN`);
-        console.log(`Gracias ${nombre}! Tu saldo final es de $ ${saldo.toFixed(2)} MXN`);
-        break
-      case "B":
-        buscarReferencia()
-        break  
-      default:
-        ingresarMovimientos = true;
-        alert("Esta opción no esta disponible")
-
-        console.log("Esta opción no esta disponible");
-        break
+    if (transaccionesEncontradas.length > 0) {
+      let mensaje = "Transacciones encontradas por referencia:\n";
+      transaccionesEncontradas.forEach(transaccion => {
+        mensaje += `${transaccion.fecha}  |->  ${transaccion.referencia}  <-|  $ ${transaccion.movimiento.toFixed(2)} MXN\n`;
+      });
+      swal(mensaje);
+    } else {
+      swal("No se encontraron transacciones con esa referencia.");
     }
-  }
+  });
 }
