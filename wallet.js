@@ -287,9 +287,9 @@ function buscarReferencia() {
     );
 
     if (transaccionesEncontradas.length > 0) {
-      let mensaje = "Transacciones encontradas por referencia:\n";
+      let mensaje = "Transacciones encontradas por referencia:\n \n";
       transaccionesEncontradas.forEach(transaccion => {
-        mensaje += `${transaccion.fecha}  |->  ${transaccion.referencia}  <-|  $ ${transaccion.movimiento.toFixed(2)} MXN\n`;
+        mensaje += `${transaccion.fecha}  |->  ${transaccion.referencia}  <-|  $ ${transaccion.movimiento.toFixed(2)} MXN\n`;  
       });
       swal(mensaje);
     } else {
