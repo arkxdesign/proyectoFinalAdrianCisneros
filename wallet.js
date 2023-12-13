@@ -56,7 +56,7 @@ if (nombreCompletoLocalStorage) {
                                     <div class="btn-group me-2" role="group" aria-label="First group">
                                       <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#movimientosModal" onclick="{ingresarSaldo()}">INGRESOS</button>
                                       <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#movimientosModal" onclick="{restarSaldo()}">EGRESOS</button>
-                                      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#buscarModal" onclick="{buscarReferencia()}">BUSCAR</button>
+                                      <button type="button" class="btn btn-outline-secondary" onclick="{redirectToSearch()}">BUSCAR</button>
                                       <button type="button" class="btn btn-outline-secondary"><a href="logout.html">SALIR</a></button>
                                     </div>
                                   </div>`;
@@ -116,27 +116,37 @@ if (nombreCompletoLocalStorage) {
   const tituloNombre = document.createElement("div");
   const inputNombre = document.createElement("input");
   inputNombre.classList.add("form-control");
-  tituloNombre.innerHTML = `<h5>Ingresa tu nombre completo</h5>`;
+  const btnSiguiente = document.createElement("button");
+  btnSiguiente.type = "button";
+  btnSiguiente.classList.add("btn", "btn-outline-secondary" ,"mt-2");
+  btnSiguiente.textContent = "Siguiente";
+
+  tituloNombre.innerHTML = `<h1>Bienvenido</h1>
+                            <h5>Ingresa tu nombre completo</h5>`;
   bienvenidoUsuario.appendChild(tituloNombre);
   bienvenidoUsuario.appendChild(inputNombre);
+  bienvenidoUsuario.appendChild(btnSiguiente);
 
-  inputNombre.addEventListener("keydown", function(event){
-    if (event.key === "Enter") {
-      const nombreCompleto = inputNombre.value.trim();
-      if (nombreCompleto.length >= 5) {
-        // Se almacena el nombre en el localStorage con la clave "nombre"
-        localStorage.setItem("nombre", JSON.stringify(nombreCompleto)); 
-        const registroUsuarioBienvenida = document.createElement("div");
-        registroUsuarioBienvenida.innerHTML = `<h5>Bienvenido:</h5>
-                          <h3>${nombreCompleto}</h3>`;
-        bienvenidoUsuario.innerHTML = "";
-        bienvenidoUsuario.appendChild(registroUsuarioBienvenida);
-        verificarSaldoInicial()        
-      } else {
-        swal("Ingresa un nombre completo válido (mínimo 5 caracteres).");
-      }
+  btnSiguiente.addEventListener("click", function () {
+    const nombreCompleto = inputNombre.value.trim();
+    if (nombreCompleto.length >= 5) {
+      localStorage.setItem("nombre", JSON.stringify(nombreCompleto));
+      const registroUsuarioBienvenida = document.createElement("div");
+      registroUsuarioBienvenida.innerHTML = `<h5>Bienvenido:</h5>
+                                            <h3>${nombreCompleto}</h3>`;
+      bienvenidoUsuario.innerHTML = "";
+      bienvenidoUsuario.appendChild(registroUsuarioBienvenida);
+      verificarSaldoInicial();
+    } else {
+      swal("Ingresa un nombre completo válido (mínimo 5 caracteres).");
     }
-  })
+  });
+
+  inputNombre.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      btnSiguiente.click();
+    }
+  });
 }
 
 function verificarSaldoInicial() {
@@ -150,7 +160,7 @@ function verificarSaldoInicial() {
   } else {
     const tituloSaldoInicial = document.createElement("div");
     tituloSaldoInicial.innerHTML = `
-    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#saldoInicial">
     INGRESA TU SALDO INICIAL
     </button>
     `;
@@ -158,28 +168,66 @@ function verificarSaldoInicial() {
     // bienvenidoUsuarioSaldo.appendChild(inputSaldoInicial);    
     inputSaldoInicial.addEventListener("keydown", function(event){
       if (event.key === "Enter") {
+        // Evitar la acción predeterminada del formulario al presionar Enter
+        event.preventDefault();
+    
         const inputSI = inputSaldoInicial.value.trim();
         const saldoInicial = parseFloat(inputSI);
-        if (isNaN(saldoInicial)|| saldoInicial <= 0) {
+    
+        if (isNaN(saldoInicial) || saldoInicial <= 0) {
           swal("Ingresa una cantidad válida, por ejemplo: 1000");
         } else if (saldoInicial >= 1) {
           saldoInicialFecha = new Fecha();
           saldoInicialRef = "SALDO INICIAL";
           saldoInicial;
+    
           // Se crea una nueva transacción con el saldo inicial y se agrega al array 'wallet'
           saldo = new Transaccion(saldoInicialFecha, saldoInicialRef, saldoInicial);
           wallet.push(saldo);
+    
           // Se almacena 'wallet' en el localStorage con la clave "wallet"
           localStorage.setItem("wallet", JSON.stringify(wallet));
           swal(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
           setTimeout(() => {
-            location.reload()
-          }, 2500);
+            location.reload();
+          }, 1000);
         }
       }
-    })
+    });
+    
   }
 }
+
+function enviarFormulario() {
+  // Obtén el valor del saldo inicial
+  const inputSI = inputSaldoInicial.value.trim();
+  const saldoInicial = parseFloat(inputSI);
+
+  // Verifica si el saldo inicial es válido
+  if (isNaN(saldoInicial) || saldoInicial <= 0) {
+    swal("Ingresa una cantidad válida, por ejemplo: 1000");
+  } else if (saldoInicial >= 1) {
+    // Crea una nueva transacción con el saldo inicial y agrégala al array 'wallet'
+    saldoInicialFecha = new Fecha();
+    saldoInicialRef = "SALDO INICIAL";
+    saldoInicial;
+
+    saldo = new Transaccion(saldoInicialFecha, saldoInicialRef, saldoInicial);
+    wallet.push(saldo);
+
+    // Almacena 'wallet' en el localStorage con la clave "wallet"
+    localStorage.setItem("wallet", JSON.stringify(wallet));
+
+    // Muestra un mensaje de éxito
+    swal(`Tu saldo inicial es de: ${saldoInicial.toFixed(2)} MXN`);
+    
+    // Recarga la página después de un breve retraso
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  }
+}
+
 
 // Función de bienvenida y mostrar saldo
 function bienvenidoSaldo() {
@@ -222,7 +270,7 @@ function registrarTransaccion(monto) {
 
   setTimeout(() => {
     location.reload()
-  },3000)
+  },2000)
 }
 
 // Función para ingresar un monto como ingreso
@@ -273,27 +321,6 @@ function restarSaldo() {
   });
 }
 
-// Función para buscar por referencia
-function buscarReferencia() {
-  let referenciaBusca = document.getElementById("buscarForm");
-  referenciaBusca.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    let referenciaInput = document.getElementById("inputReferenciaBuscar");
-    let referenciaBuscada = referenciaInput.value.trim();
-    
-    const transaccionesEncontradas = wallet.filter(
-      transaccion => transaccion.referencia.toLowerCase().includes(referenciaBuscada.toLowerCase())
-    );
-
-    if (transaccionesEncontradas.length > 0) {
-      let mensaje = "Transacciones encontradas por referencia:\n \n";
-      transaccionesEncontradas.forEach(transaccion => {
-        mensaje += `${transaccion.fecha}  |->  ${transaccion.referencia}  <-|  $ ${transaccion.movimiento.toFixed(2)} MXN\n`;  
-      });
-      swal(mensaje);
-    } else {
-      swal("No se encontraron transacciones con esa referencia.");
-    }
-  });
+function redirectToSearch() {
+  window.location.href = 'search.html';
 }
